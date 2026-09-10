@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+const template=fs.readFileSync(new URL('../lib/tracker-html.ts',import.meta.url),'utf8');
+let html=JSON.parse(template.slice('export default '.length).trim().replace(/;$/,''));
+const origin='https://empowered-cooks-kpi.devonjames.chatgpt.site';
+html=html.replaceAll("fetch('/api/state',{cache:'no-store'})",`fetch('${origin}/api/public-state',{cache:'no-store',credentials:'omit'})`);
+html=html.replaceAll('href="/signin-with-chatgpt?return_to=%2F" target="_top"',`href="${origin}/signin-with-chatgpt?return_to=%2F" target="_blank" rel="noopener noreferrer"`);
+html=html.replace('>Owner sign in</a>','>Owner editor ↗</a>');
+html=html.replace('canEdit=state.canEdit','canEdit=false');
+html=html.replace('<body>','<body class="readonly">');
+fs.mkdirSync(new URL('../docs/',import.meta.url),{recursive:true});
+fs.writeFileSync(new URL('../docs/index.html',import.meta.url),html);
+fs.writeFileSync(new URL('../docs/.nojekyll',import.meta.url),'');
+console.log('Built GitHub Pages viewer with live public data and a separate owner editor.');
